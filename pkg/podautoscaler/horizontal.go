@@ -48,7 +48,7 @@ import (
 	"k8s.io/client-go/util/workqueue"
 	"k8s.io/klog/v2"
 	"k8s.io/kubernetes/pkg/controller"
-	metricsclient "k8s.io/kubernetes/pkg/controller/podautoscaler/metrics"
+	metricsclient "sigs.k8s.io/metrics-server/pkg/podautoscaler/metrics"
 )
 
 var (
