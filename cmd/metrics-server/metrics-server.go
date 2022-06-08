@@ -15,14 +15,17 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"os"
 	"runtime"
+	"time"
 
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/component-base/logs"
 
 	"sigs.k8s.io/metrics-server/cmd/metrics-server/app"
+	"sigs.k8s.io/metrics-server/pkg/podautoscaler"
 )
 
 func main() {
@@ -38,4 +41,20 @@ func main() {
 	if err := cmd.Execute(); err != nil {
 		panic(err)
 	}
+
+	hpa := podautoscaler.NewHorizontalController(
+		nil,
+		nil,
+		nil,
+		nil,
+		nil,
+		nil,
+		nil,
+		time.Minute,
+		time.Minute,
+		1.0,
+		time.Minute,
+		time.Minute,
+	)
+	hpa.Run(context.TODO)
 }
