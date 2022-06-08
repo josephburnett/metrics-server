@@ -19,19 +19,18 @@ import (
 )
 
 type ControllerFactory struct {
-	StopCh        <-chan struct{}
-	KubeConfig    *restclient.Config
-	MetricsConfig *restclient.Config
-	KubeClient    *kube_client.Clientset
-	Factory       informers.SharedInformerFactory
+	StopCh     <-chan struct{}
+	KubeConfig *restclient.Config
+	Factory    informers.SharedInformerFactory
 }
 
 func (cf *ControllerFactory) Make() (*HorizontalController, error) {
+	kubeClient := kube_client.NewForConfigOrDie(cf.KubeConfig)
 	clientBuilder := clientbuilder.SimpleControllerClientBuilder{
 		ClientConfig: cf.KubeConfig,
 	}
 	metricsClientBuilder := clientbuilder.SimpleControllerClientBuilder{
-		ClientConfig: cf.MetricsConfig,
+		ClientConfig: cf.KubeConfig,
 	}
 
 	// Defaults based on:
@@ -54,7 +53,7 @@ func (cf *ControllerFactory) Make() (*HorizontalController, error) {
 	// Based on controller-manager construction of metrics client:
 	// https://github.com/kubernetes/kubernetes/blob/99f319567a5148f501e49da35c83478303eab38b/cmd/kube-controller-manager/app/autoscaling.go#L51-L66
 	metricsClientConfig := metricsClientBuilder.ConfigOrDie("metrics-horizontal-pod-autoscaler")
-	apiVersionsGetter := custom_metrics.NewAvailableAPIsGetter(cf.KubeClient.Discovery())
+	apiVersionsGetter := custom_metrics.NewAvailableAPIsGetter(kubeClient.Discovery())
 	// invalidate the discovery information roughly once per resync interval our API
 	// information is *at most* two resync intervals old.
 	go custom_metrics.PeriodicallyInvalidate(
@@ -87,9 +86,9 @@ func (cf *ControllerFactory) Make() (*HorizontalController, error) {
 	go services.Informer().Run(cf.StopCh)
 
 	return NewHorizontalController(
-		cf.KubeClient.CoreV1(),
+		kubeClient.CoreV1(),
 		scaleClient,
-		cf.KubeClient.AutoscalingV2(),
+		kubeClient.AutoscalingV2(),
 		restMapper,
 		metricsClient,
 		hpas,

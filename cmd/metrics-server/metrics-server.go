@@ -21,6 +21,7 @@ import (
 	"runtime"
 
 	genericapiserver "k8s.io/apiserver/pkg/server"
+	restclient "k8s.io/client-go/rest"
 	"k8s.io/component-base/logs"
 
 	"sigs.k8s.io/metrics-server/cmd/metrics-server/app"
@@ -36,7 +37,14 @@ func main() {
 	}
 
 	go func() {
-		controllerFactory := podautoscaler.ControllerFactory{}
+		config, err := restclient.InClusterConfig()
+		if err != nil {
+			panic(err)
+		}
+		controllerFactory := podautoscaler.ControllerFactory{
+			StopCh:     make(<-chan struct{}),
+			KubeConfig: config,
+		}
 		horizontalController, err := controllerFactory.Make()
 		if err != nil {
 			panic(err)
