@@ -29,7 +29,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/sets"
 	corelisters "k8s.io/client-go/listers/core/v1"
 	podutil "k8s.io/kubernetes/pkg/api/v1/pod"
-	metricsclient "k8s.io/kubernetes/pkg/controller/podautoscaler/metrics"
+	metricsclient "sigs.k8s.io/metrics-server/pkg/podautoscaler/metrics"
 )
 
 const (

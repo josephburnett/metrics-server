@@ -1237,6 +1237,7 @@ k8s.io/component-base v0.23.2 h1:dAYmUhWIBWO762etTjBEEKtYYHi5CoQInSLtK6LM1Zs=
 k8s.io/component-base v0.23.2/go.mod h1:wS9Z03MO3oJ0RU8bB/dbXTiluGju+SC/F5i660gxB8c=
 k8s.io/component-helpers v0.23.2 h1:R1PaugmLBCMpc7+srxGL8DsH1NEo/KUSJPY62LVH8CU=
 k8s.io/component-helpers v0.23.2/go.mod h1:J6CMwiaf0izLoNwiLl2OymB4+rGTsTpWp6PL/AqOM4U=
+k8s.io/controller-manager v0.23.2 h1:d+7Yhdlgc+AafX65vTKk+VoXYcJjPRcHyGfW1KFcMyE=
 k8s.io/controller-manager v0.23.2/go.mod h1:l4+ZujXlzNpY1E9TkwaCB6BncYKyq2jD8OW6m8x35B0=
 k8s.io/cri-api v0.23.2/go.mod h1:REJE3PSU0h/LOV1APBrupxrEJqnoxZC8KWzkBUHwrK4=
 k8s.io/csi-translation-lib v0.23.2/go.mod h1:n3igp3ZXcg5XLwPjK03QTSWBIoksKo6oTKMdtRbVvx8=

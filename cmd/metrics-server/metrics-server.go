@@ -19,7 +19,6 @@ import (
 	"flag"
 	"os"
 	"runtime"
-	"time"
 
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/component-base/logs"
@@ -36,25 +35,18 @@ func main() {
 		runtime.GOMAXPROCS(runtime.NumCPU())
 	}
 
+	go func() {
+		controllerFactory := podautoscaler.ControllerFactory{}
+		horizontalController, err := controllerFactory.Make()
+		if err != nil {
+			panic(err)
+		}
+		horizontalController.Run(context.TODO())
+	}()
+
 	cmd := app.NewMetricsServerCommand(genericapiserver.SetupSignalHandler())
 	cmd.Flags().AddGoFlagSet(flag.CommandLine)
 	if err := cmd.Execute(); err != nil {
 		panic(err)
 	}
-
-	hpa := podautoscaler.NewHorizontalController(
-		nil,
-		nil,
-		nil,
-		nil,
-		nil,
-		nil,
-		nil,
-		time.Minute,
-		time.Minute,
-		1.0,
-		time.Minute,
-		time.Minute,
-	)
-	hpa.Run(context.TODO)
 }
