@@ -21,7 +21,6 @@ import (
 type ControllerFactory struct {
 	StopCh     <-chan struct{}
 	KubeConfig *restclient.Config
-	Factory    informers.SharedInformerFactory
 }
 
 func (cf *ControllerFactory) Make() (*HorizontalController, error) {
@@ -32,6 +31,7 @@ func (cf *ControllerFactory) Make() (*HorizontalController, error) {
 	metricsClientBuilder := clientbuilder.SimpleControllerClientBuilder{
 		ClientConfig: cf.KubeConfig,
 	}
+	factory := informers.NewSharedInformerFactory(kubeClient, 15*time.Minute)
 
 	// Defaults based on:
 	//https://github.com/kubernetes/kubernetes/blob/cbdc9b671f33b0f0679e790cc462b25d1476a3af/pkg/controller/apis/config/v1alpha1/defaults.go#L154-L180
@@ -78,11 +78,11 @@ func (cf *ControllerFactory) Make() (*HorizontalController, error) {
 		return nil, err
 	}
 
-	hpas := cf.Factory.Autoscaling().V2().HorizontalPodAutoscalers()
+	hpas := factory.Autoscaling().V2().HorizontalPodAutoscalers()
 	go hpas.Informer().Run(cf.StopCh)
-	pods := cf.Factory.Core().V1().Pods()
+	pods := factory.Core().V1().Pods()
 	go pods.Informer().Run(cf.StopCh)
-	services := cf.Factory.Core().V1().Services()
+	services := factory.Core().V1().Services()
 	go services.Informer().Run(cf.StopCh)
 
 	return NewHorizontalController(
