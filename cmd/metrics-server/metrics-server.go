@@ -20,9 +20,13 @@ import (
 	"runtime"
 
 	genericapiserver "k8s.io/apiserver/pkg/server"
+	restclient "k8s.io/client-go/rest"
 	"k8s.io/component-base/logs"
 
 	"sigs.k8s.io/metrics-server/cmd/metrics-server/app"
+	"sigs.k8s.io/metrics-server/pkg/podautoscaler"
+
+	_ "k8s.io/kubernetes/pkg/apis/autoscaling/install"
 )
 
 func main() {
@@ -32,6 +36,22 @@ func main() {
 	if len(os.Getenv("GOMAXPROCS")) == 0 {
 		runtime.GOMAXPROCS(runtime.NumCPU())
 	}
+
+	go func() {
+		config, err := restclient.InClusterConfig()
+		if err != nil {
+			panic(err)
+		}
+		controllerFactory := podautoscaler.ControllerFactory{
+			StopCh:     make(<-chan struct{}),
+			KubeConfig: config,
+		}
+		horizontalController, err := controllerFactory.Make()
+		if err != nil {
+			panic(err)
+		}
+		horizontalController.Run(make(<-chan struct{}))
+	}()
 
 	cmd := app.NewMetricsServerCommand(genericapiserver.SetupSignalHandler())
 	cmd.Flags().AddGoFlagSet(flag.CommandLine)
