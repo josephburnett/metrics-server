@@ -25,6 +25,8 @@ import (
 
 	"sigs.k8s.io/metrics-server/cmd/metrics-server/app"
 	"sigs.k8s.io/metrics-server/pkg/podautoscaler"
+
+	_ "k8s.io/kubernetes/pkg/apis/autoscaling/install"
 )
 
 func main() {
