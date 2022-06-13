@@ -15,7 +15,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"os"
 	"runtime"
@@ -49,7 +48,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		horizontalController.Run(context.TODO())
+		horizontalController.Run(make(<-chan struct{}))
 	}()
 
 	cmd := app.NewMetricsServerCommand(genericapiserver.SetupSignalHandler())

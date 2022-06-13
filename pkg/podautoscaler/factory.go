@@ -78,7 +78,7 @@ func (cf *ControllerFactory) Make() (*HorizontalController, error) {
 		return nil, err
 	}
 
-	hpas := factory.Autoscaling().V2().HorizontalPodAutoscalers()
+	hpas := factory.Autoscaling().V1().HorizontalPodAutoscalers()
 	go hpas.Informer().Run(cf.StopCh)
 	pods := factory.Core().V1().Pods()
 	go pods.Informer().Run(cf.StopCh)
@@ -88,7 +88,7 @@ func (cf *ControllerFactory) Make() (*HorizontalController, error) {
 	return NewHorizontalController(
 		kubeClient.CoreV1(),
 		scaleClient,
-		kubeClient.AutoscalingV2(),
+		kubeClient.AutoscalingV1(),
 		restMapper,
 		metricsClient,
 		hpas,
