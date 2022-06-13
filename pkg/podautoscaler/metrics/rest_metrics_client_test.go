@@ -17,13 +17,12 @@ limitations under the License.
 package metrics
 
 import (
-	"context"
 	"fmt"
 	"testing"
 	"time"
 
-	autoscalingapi "k8s.io/api/autoscaling/v2"
-	v1 "k8s.io/api/core/v1"
+	autoscalingapi "k8s.io/api/autoscaling/v2beta2"
+	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta/testrestmapper"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -42,14 +41,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 )
-
-var fixedTimestamp = time.Date(2015, time.November, 10, 12, 30, 0, 0, time.UTC)
-
-// timestamp is used for establishing order on metricPoints
-type metricPoint struct {
-	level     uint64
-	timestamp int
-}
 
 type restClientTestCase struct {
 	desiredMetricValues PodMetricsInfo
@@ -240,7 +231,7 @@ func (tc *restClientTestCase) runTest(t *testing.T) {
 	isResource := len(tc.resourceName) > 0
 	isExternal := tc.metricSelector != nil
 	if isResource {
-		info, timestamp, err := metricsClient.GetResourceMetric(context.TODO(), v1.ResourceName(tc.resourceName), tc.namespace, tc.selector, tc.container)
+		info, timestamp, err := metricsClient.GetResourceMetric(v1.ResourceName(tc.resourceName), tc.namespace, tc.selector, tc.container)
 		tc.verifyResults(t, info, timestamp, err)
 	} else if isExternal {
 		tc.metricLabelSelector, err = metav1.LabelSelectorAsSelector(tc.metricSelector)
@@ -432,8 +423,4 @@ func TestRESTClientContainerCPUEmptyMetricsForOnePod(t *testing.T) {
 		reportedPodMetrics: []map[string]int64{{"test-1": 100}, {"test-1": 300, "test-2": 400}, {}},
 	}
 	tc.runTest(t)
-}
-
-func offsetTimestampBy(t int) time.Time {
-	return fixedTimestamp.Add(time.Duration(t) * time.Minute)
 }
