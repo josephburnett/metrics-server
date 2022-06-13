@@ -42,7 +42,6 @@ import (
 	"k8s.io/kubernetes/pkg/apis/autoscaling"
 	autoscalingapiv2beta2 "k8s.io/kubernetes/pkg/apis/autoscaling/v2beta2"
 	"k8s.io/kubernetes/pkg/controller"
-	"k8s.io/kubernetes/pkg/controller/podautoscaler/metrics"
 	cmapi "k8s.io/metrics/pkg/apis/custom_metrics/v1beta2"
 	emapi "k8s.io/metrics/pkg/apis/external_metrics/v1beta1"
 	metricsapi "k8s.io/metrics/pkg/apis/metrics/v1beta1"
@@ -50,6 +49,7 @@ import (
 	cmfake "k8s.io/metrics/pkg/client/custom_metrics/fake"
 	emfake "k8s.io/metrics/pkg/client/external_metrics/fake"
 	utilpointer "k8s.io/utils/pointer"
+	"sigs.k8s.io/metrics-server/podautoscaler/metrics"
 
 	"github.com/stretchr/testify/assert"
 
