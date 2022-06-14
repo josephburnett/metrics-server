@@ -36,6 +36,7 @@ import (
 	"k8s.io/klog/v2"
 	"k8s.io/metrics/pkg/apis/metrics"
 	_ "k8s.io/metrics/pkg/apis/metrics/install"
+	"sigs.k8s.io/metrics-server/pkg/bridge"
 )
 
 type podMetrics struct {
@@ -51,11 +52,13 @@ var _ rest.Lister = &podMetrics{}
 var _ rest.TableConvertor = &podMetrics{}
 
 func newPodMetrics(groupResource schema.GroupResource, metrics PodMetricsGetter, podLister v1listers.PodLister) *podMetrics {
-	return &podMetrics{
+	p := &podMetrics{
 		groupResource: groupResource,
 		metrics:       metrics,
 		podLister:     podLister,
 	}
+	bridge.SetPodResourceMetricsListFn(p.List)
+	return p
 }
 
 // Storage interface
