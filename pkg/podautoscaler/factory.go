@@ -12,9 +12,9 @@ import (
 	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/scale"
 	"k8s.io/controller-manager/pkg/clientbuilder"
+	resourceclient "k8s.io/metrics/pkg/client/clientset/versioned/typed/metrics/v1beta1"
 	"k8s.io/metrics/pkg/client/custom_metrics"
 	"k8s.io/metrics/pkg/client/external_metrics"
-	"sigs.k8s.io/metrics-server/pkg/bridge"
 	horizontalmetrics "sigs.k8s.io/metrics-server/pkg/podautoscaler/metrics"
 )
 
@@ -61,7 +61,7 @@ func (cf *ControllerFactory) Make() (*HorizontalController, error) {
 		horizontalPodAutoscalerSyncPeriod,
 		cf.StopCh)
 	metricsClient := horizontalmetrics.NewRESTMetricsClient(
-		bridge.GetPodResourceMetricsClient(),
+		resourceclient.NewForConfigOrDie(metricsClientConfig),
 		custom_metrics.NewForConfig(metricsClientConfig, restMapper, apiVersionsGetter),
 		external_metrics.NewForConfigOrDie(metricsClientConfig),
 	)
