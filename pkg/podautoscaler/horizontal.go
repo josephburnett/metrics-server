@@ -572,6 +572,14 @@ func (a *HorizontalController) recordInitialRecommendation(currentReplicas int32
 }
 
 func (a *HorizontalController) reconcileAutoscaler(hpav1Shared *autoscalingv1.HorizontalPodAutoscaler, key string) error {
+
+	start := time.Now()
+	defer func() {
+		end := time.Now()
+		duration := end.Sub(start)
+		klog.Infof("RECONCILE TIME (ms): %v", duration.Milliseconds())
+	}()
+
 	// make a copy so that we never mutate the shared informer cache (conversion can mutate the object)
 	hpav1 := hpav1Shared.DeepCopy()
 	// then, convert to autoscaling/v2, which makes our lives easier when calculating metrics
