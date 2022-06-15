@@ -17,18 +17,19 @@ limitations under the License.
 package metrics
 
 import (
+	"context"
 	"fmt"
 	"time"
 
 	"k8s.io/klog/v2"
-	"sigs.k8s.io/metrics-server/pkg/bridge"
 
 	autoscaling "k8s.io/api/autoscaling/v2beta2"
 	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	customapi "k8s.io/metrics/pkg/apis/custom_metrics/v1beta2"
-	metricsapiinternal "k8s.io/metrics/pkg/apis/metrics"
+	metricsapi "k8s.io/metrics/pkg/apis/metrics/v1beta1"
 	resourceclient "k8s.io/metrics/pkg/client/clientset/versioned/typed/metrics/v1beta1"
 	customclient "k8s.io/metrics/pkg/client/custom_metrics"
 	externalclient "k8s.io/metrics/pkg/client/external_metrics"
@@ -65,7 +66,8 @@ type resourceMetricsClient struct {
 // for all pods matching the specified selector in the given namespace
 func (c *resourceMetricsClient) GetResourceMetric(resource v1.ResourceName, namespace string, selector labels.Selector, container string) (PodMetricsInfo, time.Time, error) {
 
-	metrics, err := bridge.List(namespace, selector)
+	// EXPERIMENTAL metrics, err := bridge.List(namespace, selector)
+	metrics, err := c.client.PodMetricses(namespace).List(context.TODO(), metav1.ListOptions{LabelSelector: selector.String()})
 	if err != nil {
 		return nil, time.Time{}, fmt.Errorf("unable to fetch metrics from resource metrics API: %v", err)
 	}
@@ -86,7 +88,8 @@ func (c *resourceMetricsClient) GetResourceMetric(resource v1.ResourceName, name
 	return res, timestamp, nil
 }
 
-func getContainerMetrics(rawMetrics []metricsapiinternal.PodMetrics, resource v1.ResourceName, container string) (PodMetricsInfo, error) {
+// EXPERIMENTAL func getContainerMetrics(rawMetrics []metricsapiinternal.PodMetrics, resource v1.ResourceName, container string) (PodMetricsInfo, error) {
+func getContainerMetrics(rawMetrics []metricsapi.PodMetrics, resource v1.ResourceName, container string) (PodMetricsInfo, error) {
 	res := make(PodMetricsInfo, len(rawMetrics))
 	for _, m := range rawMetrics {
 		containerFound := false
@@ -110,7 +113,8 @@ func getContainerMetrics(rawMetrics []metricsapiinternal.PodMetrics, resource v1
 	return res, nil
 }
 
-func getPodMetrics(rawMetrics []metricsapiinternal.PodMetrics, resource v1.ResourceName) PodMetricsInfo {
+// EXPERIMENTAL func getPodMetrics(rawMetrics []metricsapiinternal.PodMetrics, resource v1.ResourceName) PodMetricsInfo {
+func getPodMetrics(rawMetrics []metricsapi.PodMetrics, resource v1.ResourceName) PodMetricsInfo {
 	res := make(PodMetricsInfo, len(rawMetrics))
 	for _, m := range rawMetrics {
 		podSum := int64(0)
